@@ -12,8 +12,7 @@ Powered by real-time OSM data, live weather, and orbital physics.
 [![Made in Malaysia](https://img.shields.io/badge/Made%20in-🇲🇾%20Malaysia-CC0001?style=for-the-badge)](https://malaysia.gov.my)
 
 [![Buy Me A Coffee](https://img.shields.io/badge/☕%20Buy%20Me%20A%20Coffee-stargazex-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/stargazex)
-[![Stars](https://img.shields.io/github/stars/YOUR_USERNAME/starbasev?style=for-the-badge&logo=github&color=FFD700)](https://github.com/YOUR_USERNAME/starbasev/stargazers)
-[![Forks](https://img.shields.io/github/forks/YOUR_USERNAME/starbasev?style=for-the-badge&logo=github&color=00F0FF)](https://github.com/YOUR_USERNAME/starbasev/network/members)
+
 
 </div>
 
@@ -77,6 +76,11 @@ Each site is scored across **8 weighted criteria**:
 
 **Final score** = weighted sum, minus penalties for critical issues (low elevation, high flood risk, dense population, etc.).
  ☕ If StarbaseV helped you, consider [buying me a coffee](https://buymeacoffee.com/stargazex) — it keeps the app free and ad-free.
+ <a href="https://www.buymeacoffee.com/stargazex" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" 
+       alt="Buy Me A Coffee" 
+       height="41" 
+       width="174">
 ### Rating bands
 
 - 🚀 **Excellent** (80–100%) — Highly recommended
@@ -85,3 +89,8 @@ Each site is scored across **8 weighted criteria**:
 - ⚠️ **Limited** (35–49%) — Marginal, major investment
 - ❌ **Poor** (0–34%) — Not recommended
  ☕ If StarbaseV helped you, consider [buying me a coffee](https://buymeacoffee.com/stargazex) — it keeps the app free and ad-free.
+ <a href="https://www.buymeacoffee.com/stargazex" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" 
+       alt="Buy Me A Coffee" 
+       height="41" 
+       width="174">
