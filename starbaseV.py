@@ -9,7 +9,7 @@ All features preserved:
   - 📤 Download Report (JSON / CSV / TXT)
   - 🚀 Payload / Delta-V Calculator
   - 📅 30-Day Historical Wind Chart
-  - 🔍 Search Bar (address or coordinates)
+  - 🔍 Search Bar (address or coordinates) — with 4-provider fallback
 """
 
 from __future__ import annotations
@@ -725,33 +725,110 @@ def fetch_wind_history(lat: float, lon: float, days: int = 30) -> Optional[Dict]
 
 
 def geocode_query(query: str) -> Optional[Dict]:
+    """
+    Geocode a text query via multiple providers with automatic fallback.
+    Works on Streamlit Cloud where Nominatim may be IP-blocked.
+    """
+    headers = {
+        'User-Agent': 'StarbaseV/1.0 (https://github.com/Koo74/starbasev)',
+        'Accept': 'application/json',
+    }
+
+    # ---- Strategy 1: Nominatim (Malaysia first) ----
     try:
-        url = "https://nominatim.openstreetmap.org/search"
-        params = {
-            'q': query,
-            'format': 'json',
-            'limit': 1,
-            'countrycodes': 'my',
-        }
-        headers = {'User-Agent': 'StarbaseV/1.0 (spaceport site selection)'}
-        r = requests.get(url, params=params, headers=headers, timeout=8)
-        if r.status_code != 200:
-            return None
-        data = r.json()
-        if not data:
-            params.pop('countrycodes', None)
-            r = requests.get(url, params=params, headers=headers, timeout=8)
+        r = requests.get(
+            "https://nominatim.openstreetmap.org/search",
+            params={'q': query, 'format': 'json', 'limit': 1, 'countrycodes': 'my'},
+            headers=headers,
+            timeout=10,
+        )
+        if r.status_code == 200:
             data = r.json()
-            if not data:
-                return None
-        result = data[0]
-        return {
-            'lat': float(result['lat']),
-            'lon': float(result['lon']),
-            'display_name': result.get('display_name', query),
-        }
+            if data:
+                return {
+                    'lat': float(data[0]['lat']),
+                    'lon': float(data[0]['lon']),
+                    'display_name': data[0].get('display_name', query),
+                }
     except Exception:
-        return None
+        pass
+
+    # ---- Strategy 2: Nominatim (global, no country filter) ----
+    try:
+        r = requests.get(
+            "https://nominatim.openstreetmap.org/search",
+            params={'q': query, 'format': 'json', 'limit': 1},
+            headers=headers,
+            timeout=10,
+        )
+        if r.status_code == 200:
+            data = r.json()
+            if data:
+                return {
+                    'lat': float(data[0]['lat']),
+                    'lon': float(data[0]['lon']),
+                    'display_name': data[0].get('display_name', query),
+                }
+    except Exception:
+        pass
+
+    # ---- Strategy 3: Photon (Komoot) — independent provider ----
+    try:
+        r = requests.get(
+            "https://photon.komoot.io/api/",
+            params={'q': query, 'limit': 1},
+            headers=headers,
+            timeout=10,
+        )
+        if r.status_code == 200:
+            data = r.json()
+            features = data.get('features', [])
+            if features:
+                coords = features[0]['geometry']['coordinates']
+                props = features[0].get('properties', {})
+                parts = [
+                    props.get('name', ''),
+                    props.get('city', ''),
+                    props.get('state', ''),
+                    props.get('country', ''),
+                ]
+                display = ', '.join(p for p in parts if p) or query
+                return {
+                    'lat': float(coords[1]),
+                    'lon': float(coords[0]),
+                    'display_name': display,
+                }
+    except Exception:
+        pass
+
+    # ---- Strategy 4: Open-Meteo Geocoding — same infra as weather API ----
+    try:
+        r = requests.get(
+            "https://geocoding-api.open-meteo.com/v1/search",
+            params={'name': query, 'count': 1, 'language': 'en', 'format': 'json'},
+            headers=headers,
+            timeout=10,
+        )
+        if r.status_code == 200:
+            data = r.json()
+            results = data.get('results', [])
+            if results:
+                place = results[0]
+                parts = [
+                    place.get('name', ''),
+                    place.get('admin1', ''),
+                    place.get('country', ''),
+                ]
+                display = ', '.join(p for p in parts if p) or query
+                return {
+                    'lat': float(place['latitude']),
+                    'lon': float(place['longitude']),
+                    'display_name': display,
+                }
+    except Exception:
+        pass
+
+    return None
 
 
 def parse_coordinates(text: str) -> Optional[Dict]:
